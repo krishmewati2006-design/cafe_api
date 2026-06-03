@@ -45,3 +45,7 @@ async def update_order_state(order_id:int, db = Depends(get_db), role = Depends(
     db.commit()
     db.refresh(order)
     return order
+
+@router.get("/orders/")
+async def get_all_order(db = Depends(get_db), role = Depends(get_current_manager)):
+    return db.query(OrderModel).all()
