@@ -12,3 +12,6 @@ def set_cache(key, value, ttl):
 
 def get_cache(key):
     return  client.get(key)
+
+def delete_key(key):
+    client.delete(key)

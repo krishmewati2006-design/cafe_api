@@ -3,7 +3,7 @@ from database import get_db
 from models import MenuItem as MenuItemModel
 from schemas import MenuItemCreate
 from auth import get_current_manager
-from cache import get_cache, set_cache
+from cache import get_cache, set_cache, delete_key
 import json
 
 
@@ -25,6 +25,7 @@ async def add_item(MenuItem: MenuItemCreate, db = Depends(get_db), role = Depend
     db.add(add_menu_item)
     db.commit()
     db.refresh(add_menu_item)
+    delete_key("menu")
     return add_menu_item
 
 @router.put("/menu/{item_id}")
@@ -38,6 +39,7 @@ async def update_menu(item_id:int, MenuItem: MenuItemCreate, db = Depends(get_db
     item.availability = MenuItem.availability
     db.commit()
     db.refresh(item)
+    delete_key("menu")
     return item
 
 @router.delete("/menu/{item_id}")
@@ -48,4 +50,5 @@ async def delete_menu_item(item_id: int, db = Depends(get_db), role = Depends(ge
     
     db.delete(item)
     db.commit()
+    delete_key("menu")
     return {"Message": f"Menu Item With ID {item_id} Has Been Removed."}
