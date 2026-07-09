@@ -3,13 +3,21 @@ from database import get_db
 from models import MenuItem as MenuItemModel
 from schemas import MenuItemCreate
 from auth import get_current_manager
+from cache import get_cache, set_cache
+import json
 
 
 router = APIRouter()
 
 @router.get("/menu")
 async def get_menu(db = Depends(get_db)):
-    return db.query(MenuItemModel).all()
+    cache_data = get_cache("menu")
+    if cache_data:
+        return json.loads(cache_data)
+    items = db.query(MenuItemModel).all()
+    items_dict = [{"id": item.id, "name": item.name, "price": item.price, "category": item.category, "availability": item.availability} for item in items]
+    set_cache("menu", json.dumps(items_dict), 60)
+    return items_dict
 
 @router.post("/menu")
 async def add_item(MenuItem: MenuItemCreate, db = Depends(get_db), role = Depends(get_current_manager)):
